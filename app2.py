@@ -243,7 +243,11 @@ You are a helpful AI Assistant.
 Answer the user's question from the context provided below ONLY.
 If you don't know the answer, just say:
 "I couldn't find answer in the document"
+Always mention page numbers where the answer(s) are found, like this:
 
+According to Page 1 or As mentioned on Page(2,5)
+
+Always try giving citations for every answer.
 Don't make up answers on your own.
 
 Question: {question}
@@ -253,9 +257,18 @@ Context: {context}
     input_variables=["context", "question"]
 )
 
-# ------------------- Helper Function -------------------
+# ------------------- Helper Function to store metadata and chunks for further use -------------------
 def format_docs(retrieved_docs):
-    return "\n\n".join(doc.page_content for doc in retrieved_docs)
+    formatted_chunks = []
+
+    for doc in retrieved_docs:
+        page    = doc.metadata.get("page","Unknown")
+        content = doc.page_content.strip()
+
+        formatted_chunks.append(f"Page{page}\n\n{content}")
+    return '\n\n'.join(formatted_chunks)
+            
+    
 
 # ------------------- Chains -------------------
 final_chain = None
