@@ -160,7 +160,7 @@ parser = StrOutputParser()
 
 # ------------------- LLM -------------------
 llm = HuggingFaceEndpoint(
-    repo_id='moonshotai/Kimi-K2-Thinking',
+    repo_id='Qwen/Qwen2.5-7B-Instruct',
     provider='auto',
     task='text-generation',
 )
