@@ -8,4 +8,5 @@ huggingface_hub
 faiss-cpu
 pypdf
 sentence-transformers
-
+langchain-groq
+langsmith

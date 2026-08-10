@@ -8,7 +8,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_community.vectorstores import FAISS
 import streamlit as st
 import os
-
+from langchain_groq import ChatGroq
 load_dotenv()
 
 # ------------------- Page Config -------------------
@@ -159,13 +159,17 @@ with st.sidebar:
 parser = StrOutputParser()
 
 # ------------------- LLM -------------------
-llm = HuggingFaceEndpoint(
-    repo_id='Qwen/Qwen2.5-7B-Instruct',
-    provider='auto',
-    task='text-generation',
+# llm = HuggingFaceEndpoint(
+#     repo_id='Qwen/Qwen2.5-7B-Instruct',
+#     provider='auto',
+#     task='text-generation',
+# )
+llm = ChatGroq(
+    model="llama-3.3-70b-versatile",
+    temperature=0.1,
 )
 
-model = ChatHuggingFace(llm=llm)
+model = llm
 
 # ------------------- Embedding model to use -------------------
 embedding_model = HuggingFaceEndpointEmbeddings(
@@ -238,17 +242,16 @@ if vector_store is not None:
 # ------------------- Prompt -------------------
 prompt = PromptTemplate(
     template="""
-You are a helpful AI Assistant.
+You are a helpful AI Assistant. Your task is to answer the user's questions using ONLY the provided document context below. 
 
-Answer the user's question from the context provided below ONLY.
-If you don't know the answer, just say:
-"I couldn't find answer in the document"
-Always mention page numbers where the answer(s) are found, like this:
+Strictly adhere to the following rules:
+1. Extract answers from the provided context ONLY. Do not make up answers, use outside knowledge, or extrapolate beyond the text.
+2. If the answer cannot be found in the provided document context, respond exactly with: "I couldn't find answer in the document"
+3. Do not include any citations or page numbers if the answer is not found.
+4. For every successful answer, you must provide a citation pointing to the exact page number where the information was found. 
+5. Format your citations strictly in square brackets at the end of the relevant sentence or paragraph, exactly like this: (e.g., "The company increased its revenue by 14% in Q3.[Page-2]")
+6. Maintain logical reasoning based strictly on the facts presented in the document.
 
-According to Page 1 or As mentioned on Page(2,5)
-
-Always try giving citations for every answer.
-Don't make up answers on your own.
 
 Question: {question}
 
